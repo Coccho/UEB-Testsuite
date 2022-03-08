@@ -71,22 +71,30 @@ void test(char *testname, char *testinput, int n)
 {
     assert(n % 32 == 0);
 
-    // Create mutable copies of the testinput string
-    char testdata[n];
-    memcpy(testdata, testinput, n);
-    char controlldata[n];
-    memcpy(controlldata, testinput, n);
+    // if n is negative, use strlen
+    int inlen = n;
+    if (n < 0) {
+      inlen = strlen(testinput);
+    }
 
-    // Call both implementations
+    char controlldata[inlen];
+    memcpy(controlldata, testinput, inlen);
+    
+    // Create mutable copies of the testinput string
+    char testdata[inlen];
+    memcpy(testdata, testinput, inlen);
+    // char padding[inlen];
+    // memset(padding, 1, inlen);
+
+    // Call both implementations with original n
     asmb(testdata, n);
     asmb_controll(controlldata, n);
 
-    // Compare the results
-    if (memcmp(controlldata, testdata, n) == 0)
+    if (memcmp(controlldata, testdata, inlen) == 0)
     {
         printf("Test '%s' passed.\n", testname);
         return;
-    }
+    }   
 
     // Oh no.
     // The test failed.
@@ -94,20 +102,20 @@ void test(char *testname, char *testinput, int n)
     // should do
     printf("Test '%s' failed!\n", testname);
     printf("Your implementation returned:\n\thex: ");
-    print_hex(testdata, n);
-    printf("\n\tascii: '%.*s'", n, testdata);
+    print_hex(testdata, inlen);
+    printf("\n\tascii: '%.*s'", inlen, testdata);
     printf("\n");
     printf("But should have returned: ");
     printf("\n\thex: ");
-    print_hex(controlldata, n);
-    printf("\n\tascii: '%.*s'", n, controlldata);
+    print_hex(controlldata, inlen);
+    printf("\n\tascii: '%.*s'", inlen, controlldata);
     printf("\n\n");
 }
 
 int main()
 {
     test("Empty input", "", 0);
-    // test("Negative n", "", -32);
+    test("Negative n", "", -32);
     test("32 Ascii Zeros", "00000000000000000000000000000000", 32);
     test("64 Ascii Zeros", "0000000000000000000000000000000000000000000000000000000000000000", 64);
     test("One Ascii One (32)", "10000000000000000000000000000000", 32);
